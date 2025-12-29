@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 
-interface Transaction {
+export interface Transaction {
   id: string;
+  type: 'buy' | 'send';
   amount: number;
   priceAtPurchase: number;
   date: string;
@@ -11,6 +12,7 @@ interface Transaction {
 
 interface ApiTransaction {
   id: string;
+  type?: string;
   amount: number;
   priceAtPurchase?: number;
   price_at_purchase?: number;
@@ -22,6 +24,7 @@ const COINGECKO_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin
 function normalizeTransaction(t: ApiTransaction): Transaction {
   return {
     id: t.id,
+    type: (t.type as 'buy' | 'send') || 'buy',
     amount: Number(t.amount),
     priceAtPurchase: Number(t.priceAtPurchase ?? t.price_at_purchase ?? 0),
     date: t.date,
@@ -35,7 +38,7 @@ async function fetchTransactions(): Promise<Transaction[]> {
   return data.map(normalizeTransaction);
 }
 
-async function createTransaction(data: { amount: number; priceAtPurchase: number }): Promise<Transaction> {
+async function createTransaction(data: { type: string; amount: number; priceAtPurchase: number }): Promise<Transaction> {
   const res = await fetch('/api/transactions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -69,9 +72,10 @@ export function usePortfolio() {
     mutationFn: createTransaction,
     onSuccess: (newTx) => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      const action = newTx.type === 'buy' ? 'Bought' : 'Sent';
       toast({
         title: "Transaction Added",
-        description: `Added ${newTx.amount} BTC at $${newTx.priceAtPurchase.toLocaleString()}/BTC`
+        description: `${action} ${newTx.amount} BTC`
       });
     },
     onError: () => {
@@ -127,9 +131,9 @@ export function usePortfolio() {
     return () => clearInterval(interval);
   }, []);
 
-  const addTransaction = (amount: number, totalCost: number) => {
+  const addTransaction = (type: 'buy' | 'send', amount: number, totalCost: number) => {
     const priceAtPurchase = totalCost / amount;
-    createMutation.mutate({ amount, priceAtPurchase });
+    createMutation.mutate({ type, amount, priceAtPurchase });
   };
 
   const removeTransaction = (id: string) => {

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Transaction } from '@/lib/types';
+import { Transaction } from '@/hooks/use-portfolio';
 import { ArrowUpRight, ArrowDownRight, Wallet, Bitcoin, DollarSign, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -10,11 +10,20 @@ interface PortfolioSummaryProps {
 }
 
 export function PortfolioSummary({ transactions, currentPrice, isLoading }: PortfolioSummaryProps) {
-  const totalBTC = transactions.reduce((acc, t) => acc + t.amount, 0);
-  const totalInvestment = transactions.reduce((acc, t) => acc + (t.amount * t.priceAtPurchase), 0);
+  const buyTransactions = transactions.filter(t => t.type === 'buy');
+  const sendTransactions = transactions.filter(t => t.type === 'send');
+  
+  const totalBought = buyTransactions.reduce((acc, t) => acc + t.amount, 0);
+  const totalSent = sendTransactions.reduce((acc, t) => acc + t.amount, 0);
+  const totalBTC = totalBought - totalSent;
+  
+  const totalInvestment = buyTransactions.reduce((acc, t) => acc + (t.amount * t.priceAtPurchase), 0);
+  const totalSentValue = sendTransactions.reduce((acc, t) => acc + (t.amount * t.priceAtPurchase), 0);
+  const netInvestment = totalInvestment - totalSentValue;
+  
   const currentValue = currentPrice ? totalBTC * currentPrice : 0;
-  const profit = currentValue - totalInvestment;
-  const profitPercentage = totalInvestment > 0 ? (profit / totalInvestment) * 100 : 0;
+  const profit = currentValue - netInvestment;
+  const profitPercentage = netInvestment > 0 ? (profit / netInvestment) * 100 : 0;
 
   const isProfit = profit >= 0;
 
@@ -53,15 +62,15 @@ export function PortfolioSummary({ transactions, currentPrice, isLoading }: Port
         <StatCard 
           title="Total Bitcoin" 
           value={formatBTC(totalBTC)} 
-          subValue="BTC Holdings"
+          subValue={totalSent > 0 ? `${formatBTC(totalBought)} bought, ${formatBTC(totalSent)} sent` : "BTC Holdings"}
           icon={Bitcoin}
         />
       </motion.div>
       
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <StatCard 
-          title="Total Investment" 
-          value={formatCurrency(totalInvestment)} 
+          title="Net Investment" 
+          value={formatCurrency(netInvestment)} 
           subValue="Cost Basis"
           icon={Wallet}
         />

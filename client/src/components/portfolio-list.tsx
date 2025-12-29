@@ -1,8 +1,9 @@
-import { Transaction } from '@/lib/types';
+import { Transaction } from '@/hooks/use-portfolio';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Trash2, Calendar, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface PortfolioListProps {
@@ -19,16 +20,23 @@ function MobileTransactionCard({ t, onRemove, currentPrice, formatCurrency }: {
 }) {
   const cost = t.amount * t.priceAtPurchase;
   const currentVal = currentPrice ? t.amount * currentPrice : 0;
-  const pl = currentVal - cost;
+  const pl = t.type === 'buy' ? currentVal - cost : 0;
   const isProfit = pl >= 0;
+  const isSend = t.type === 'send';
 
   return (
-    <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+    <Card className={`border-border/50 backdrop-blur-sm ${isSend ? 'bg-red-500/5' : 'bg-card/80'}`}>
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Calendar className="h-3 w-3" />
-            {format(new Date(t.date), 'MMM dd, yyyy')}
+          <div className="flex items-center gap-2">
+            <Badge variant={isSend ? "destructive" : "default"} className="text-xs">
+              {isSend ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownLeft className="h-3 w-3 mr-1" />}
+              {isSend ? 'Sent' : 'Buy'}
+            </Badge>
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              {format(new Date(t.date), 'MMM dd, yyyy')}
+            </span>
           </div>
           <Button 
             variant="ghost" 
@@ -44,29 +52,33 @@ function MobileTransactionCard({ t, onRemove, currentPrice, formatCurrency }: {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <p className="text-xs text-muted-foreground">Amount</p>
-            <p className="font-mono font-semibold">{t.amount} BTC</p>
+            <p className="font-mono font-semibold">{isSend ? '-' : ''}{t.amount} BTC</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Buy Price</p>
-            <p className="font-mono">{formatCurrency(t.priceAtPurchase)}</p>
+            <p className="text-xs text-muted-foreground">{isSend ? 'Price at Send' : 'Buy Price'}</p>
+            <p className="font-mono">{formatCurrency(t.priceAtPurchase)}/BTC</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Cost Basis</p>
+            <p className="text-xs text-muted-foreground">{isSend ? 'Value Sent' : 'Cost Basis'}</p>
             <p className="font-mono text-muted-foreground">{formatCurrency(cost)}</p>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Current Value</p>
-            <p className="font-mono">{currentPrice ? formatCurrency(currentVal) : '...'}</p>
-          </div>
+          {!isSend && (
+            <div>
+              <p className="text-xs text-muted-foreground">Current Value</p>
+              <p className="font-mono">{currentPrice ? formatCurrency(currentVal) : '...'}</p>
+            </div>
+          )}
         </div>
         
-        <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Profit/Loss</span>
-          <div className={`flex items-center gap-1 font-mono font-semibold ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
-            {isProfit ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-            {currentPrice ? `${pl > 0 ? '+' : ''}${formatCurrency(pl)}` : '...'}
+        {!isSend && (
+          <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Profit/Loss</span>
+            <div className={`flex items-center gap-1 font-mono font-semibold ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
+              {isProfit ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+              {currentPrice ? `${pl > 0 ? '+' : ''}${formatCurrency(pl)}` : '...'}
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -89,7 +101,7 @@ export function PortfolioList({ transactions, onRemove, currentPrice }: Portfoli
     <>
       {/* Mobile view - card list */}
       <div className="md:hidden space-y-3">
-        <h3 className="text-lg font-semibold mb-4">Purchase History</h3>
+        <h3 className="text-lg font-semibold mb-4">Transaction History</h3>
         {transactions.map((t) => (
           <MobileTransactionCard 
             key={t.id} 
@@ -104,17 +116,18 @@ export function PortfolioList({ transactions, onRemove, currentPrice }: Portfoli
       {/* Desktop view - table */}
       <Card className="hidden md:block border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
         <CardHeader>
-          <CardTitle>Purchase History</CardTitle>
+          <CardTitle>Transaction History</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
+                  <TableHead>Type</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Amount (BTC)</TableHead>
-                  <TableHead>Buy Price</TableHead>
-                  <TableHead>Cost Basis</TableHead>
+                  <TableHead>Price/BTC</TableHead>
+                  <TableHead>Total Value</TableHead>
                   <TableHead>Current Value</TableHead>
                   <TableHead>P/L</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -124,22 +137,30 @@ export function PortfolioList({ transactions, onRemove, currentPrice }: Portfoli
                 {transactions.map((t) => {
                   const cost = t.amount * t.priceAtPurchase;
                   const currentVal = currentPrice ? t.amount * currentPrice : 0;
-                  const pl = currentVal - cost;
+                  const pl = t.type === 'buy' ? currentVal - cost : 0;
                   const isProfit = pl >= 0;
+                  const isSend = t.type === 'send';
 
                   return (
-                    <TableRow key={t.id} className="group hover:bg-muted/50 transition-colors">
+                    <TableRow key={t.id} className={`group hover:bg-muted/50 transition-colors ${isSend ? 'bg-red-500/5' : ''}`}>
+                      <TableCell>
+                        <Badge variant={isSend ? "destructive" : "default"} className="text-xs">
+                          {isSend ? 'Sent' : 'Buy'}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {format(new Date(t.date), 'MMM dd, yyyy HH:mm')}
                       </TableCell>
-                      <TableCell className="font-mono font-medium">{t.amount}</TableCell>
+                      <TableCell className={`font-mono font-medium ${isSend ? 'text-red-500' : ''}`}>
+                        {isSend ? '-' : '+'}{t.amount}
+                      </TableCell>
                       <TableCell className="font-mono">{formatCurrency(t.priceAtPurchase)}</TableCell>
                       <TableCell className="font-mono text-muted-foreground">{formatCurrency(cost)}</TableCell>
                       <TableCell className="font-mono">
-                        {currentPrice ? formatCurrency(currentVal) : '...'}
+                        {isSend ? '-' : (currentPrice ? formatCurrency(currentVal) : '...')}
                       </TableCell>
-                      <TableCell className={`font-mono ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
-                        {currentPrice ? `${pl > 0 ? '+' : ''}${formatCurrency(pl)}` : '...'}
+                      <TableCell className={`font-mono ${isSend ? 'text-muted-foreground' : (isProfit ? 'text-green-500' : 'text-red-500')}`}>
+                        {isSend ? '-' : (currentPrice ? `${pl > 0 ? '+' : ''}${formatCurrency(pl)}` : '...')}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button 

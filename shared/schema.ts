@@ -19,6 +19,7 @@ export type User = typeof users.$inferSelect;
 
 export const transactions = pgTable("transactions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull().default("buy"),
   amount: real("amount").notNull(),
   priceAtPurchase: real("price_at_purchase").notNull(),
   date: timestamp("date", { withTimezone: true }).notNull().defaultNow(),
