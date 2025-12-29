@@ -1,36 +1,19 @@
-import { type User, type InsertUser, type Transaction, type InsertTransaction, users, transactions } from "@shared/schema";
+import { type Transaction, type InsertTransaction, transactions } from "@shared/schema";
 import { db } from "./db";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  
-  getAllTransactions(): Promise<Transaction[]>;
+  getTransactionsByUser(userId: string): Promise<Transaction[]>;
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
-  updateTransaction(id: string, data: { type: string; amount: number; priceAtPurchase: number; date: Date }): Promise<Transaction>;
-  deleteTransaction(id: string): Promise<void>;
+  updateTransaction(id: string, userId: string, data: { type: string; amount: number; priceAtPurchase: number; date: Date }): Promise<Transaction>;
+  deleteTransaction(id: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
-    return user;
-  }
-
-  async getAllTransactions(): Promise<Transaction[]> {
-    return await db.select().from(transactions).orderBy(desc(transactions.date));
+  async getTransactionsByUser(userId: string): Promise<Transaction[]> {
+    return await db.select().from(transactions)
+      .where(eq(transactions.userId, userId))
+      .orderBy(desc(transactions.date));
   }
 
   async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
@@ -38,16 +21,16 @@ export class DatabaseStorage implements IStorage {
     return newTransaction;
   }
 
-  async updateTransaction(id: string, data: { type: string; amount: number; priceAtPurchase: number; date: Date }): Promise<Transaction> {
+  async updateTransaction(id: string, userId: string, data: { type: string; amount: number; priceAtPurchase: number; date: Date }): Promise<Transaction> {
     const [updated] = await db.update(transactions)
       .set(data)
-      .where(eq(transactions.id, id))
+      .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
       .returning();
     return updated;
   }
 
-  async deleteTransaction(id: string): Promise<void> {
-    await db.delete(transactions).where(eq(transactions.id, id));
+  async deleteTransaction(id: string, userId: string): Promise<void> {
+    await db.delete(transactions).where(and(eq(transactions.id, id), eq(transactions.userId, userId)));
   }
 }
 

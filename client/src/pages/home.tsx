@@ -1,14 +1,21 @@
+import { useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { usePortfolio } from '@/hooks/use-portfolio';
+import { useAuth } from '@/hooks/use-auth';
 import { PortfolioForm } from '@/components/portfolio-form';
 import { PortfolioSummary } from '@/components/portfolio-summary';
 import { PortfolioList } from '@/components/portfolio-list';
 import { ExportButtons } from '@/components/export-buttons';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Clock } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { RefreshCw, Clock, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
 import bgImage from '@assets/generated_images/dark_abstract_data_background.png';
 
 export default function Home() {
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
+  const [, setLocation] = useLocation();
+  
   const { 
     transactions, 
     btcPrice, 
@@ -19,6 +26,24 @@ export default function Home() {
     removeTransaction, 
     refreshPrice 
   } = usePortfolio();
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      setLocation('/');
+    }
+  }, [isAuthenticated, authLoading, setLocation]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden">
@@ -43,14 +68,34 @@ export default function Home() {
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
                 Bit.
               </h1>
-              <p className="text-muted-foreground text-sm sm:text-base md:text-lg">Real-time P/L .</p>
+              <p className="text-muted-foreground text-sm sm:text-base md:text-lg">Real-time P/L tracking</p>
             </div>
             
-            {btcPrice && (
-              <div className="text-2xl sm:text-3xl font-mono font-bold text-primary animate-in fade-in slide-in-from-right-4 duration-500">
-                ${btcPrice.toLocaleString()}
-              </div>
-            )}
+            <div className="flex items-center gap-4">
+              {btcPrice && (
+                <div className="text-2xl sm:text-3xl font-mono font-bold text-primary animate-in fade-in slide-in-from-right-4 duration-500">
+                  ${btcPrice.toLocaleString()}
+                </div>
+              )}
+              
+              {user && (
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.profileImageUrl || undefined} alt={user.firstName || 'User'} />
+                    <AvatarFallback>{user.firstName?.[0] || user.email?.[0] || 'U'}</AvatarFallback>
+                  </Avatar>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => logout()}
+                    className="h-8 text-muted-foreground hover:text-foreground"
+                    data-testid="button-logout"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center justify-between sm:justify-end gap-3">

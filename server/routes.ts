@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertTransactionSchema, updateTransactionSchema } from "@shared/schema";
+import { isAuthenticated } from "./replit_integrations/auth";
 import { z } from "zod";
 
 export async function registerRoutes(
@@ -9,10 +10,11 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   
-  // Get all transactions
-  app.get("/api/transactions", async (req, res) => {
+  // Get all transactions for the logged-in user
+  app.get("/api/transactions", isAuthenticated, async (req: any, res) => {
     try {
-      const transactions = await storage.getAllTransactions();
+      const userId = req.user.claims.sub;
+      const transactions = await storage.getTransactionsByUser(userId);
       res.json(transactions);
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -20,10 +22,11 @@ export async function registerRoutes(
     }
   });
 
-  // Create a new transaction
-  app.post("/api/transactions", async (req, res) => {
+  // Create a new transaction for the logged-in user
+  app.post("/api/transactions", isAuthenticated, async (req: any, res) => {
     try {
-      const validatedData = insertTransactionSchema.parse(req.body);
+      const userId = req.user.claims.sub;
+      const validatedData = insertTransactionSchema.parse({ ...req.body, userId });
       const newTransaction = await storage.createTransaction(validatedData);
       res.status(201).json(newTransaction);
     } catch (error) {
@@ -36,15 +39,16 @@ export async function registerRoutes(
     }
   });
 
-  // Update a transaction
-  app.put("/api/transactions/:id", async (req, res) => {
+  // Update a transaction (only if owned by logged-in user)
+  app.put("/api/transactions/:id", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
       const validatedData = updateTransactionSchema.parse(req.body);
-      const updated = await storage.updateTransaction(req.params.id, {
-        type: validatedData.type!,
-        amount: validatedData.amount!,
-        priceAtPurchase: validatedData.priceAtPurchase!,
-        date: new Date(validatedData.date!),
+      const updated = await storage.updateTransaction(req.params.id, userId, {
+        type: validatedData.type,
+        amount: validatedData.amount,
+        priceAtPurchase: validatedData.priceAtPurchase,
+        date: new Date(validatedData.date),
       });
       res.json(updated);
     } catch (error) {
@@ -57,10 +61,11 @@ export async function registerRoutes(
     }
   });
 
-  // Delete a transaction
-  app.delete("/api/transactions/:id", async (req, res) => {
+  // Delete a transaction (only if owned by logged-in user)
+  app.delete("/api/transactions/:id", isAuthenticated, async (req: any, res) => {
     try {
-      await storage.deleteTransaction(req.params.id);
+      const userId = req.user.claims.sub;
+      await storage.deleteTransaction(req.params.id, userId);
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting transaction:", error);
