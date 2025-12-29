@@ -34,23 +34,23 @@ function MobileTransactionCard({ t, onRemove, onEdit, currentPrice, formatCurren
 
   return (
     <Card className={`border-border/50 backdrop-blur-sm ${isSend ? 'bg-red-500/5' : 'bg-card/80'}`}>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex items-center gap-2">
-            <Badge variant={isSend ? "destructive" : "default"} className="text-xs">
-              {isSend ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownLeft className="h-3 w-3 mr-1" />}
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex justify-between items-start mb-2 sm:mb-3">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <Badge variant={isSend ? "destructive" : "default"} className="text-[10px] sm:text-xs px-1.5 sm:px-2">
+              {isSend ? <ArrowUpRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" /> : <ArrowDownLeft className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />}
               {isSend ? 'Sent' : 'Buy'}
             </Badge>
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
+              <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
               {format(new Date(t.date), 'MMM dd, yyyy')}
             </span>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-0.5 sm:gap-1">
             <Button 
               variant="ghost" 
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground touch-manipulation"
               onClick={onEdit}
               data-testid={`button-edit-mobile-${t.id}`}
             >
@@ -59,7 +59,7 @@ function MobileTransactionCard({ t, onRemove, onEdit, currentPrice, formatCurren
             <Button 
               variant="ghost" 
               size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="h-9 w-9 sm:h-8 sm:w-8 text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation"
               onClick={() => onRemove(t.id)}
               data-testid={`button-delete-mobile-${t.id}`}
             >
@@ -68,32 +68,32 @@ function MobileTransactionCard({ t, onRemove, onEdit, currentPrice, formatCurren
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <div>
-            <p className="text-xs text-muted-foreground">Amount</p>
-            <p className="font-mono font-semibold">{isSend ? '-' : ''}{t.amount} BTC</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Amount</p>
+            <p className="font-mono font-semibold text-sm sm:text-base">{isSend ? '-' : ''}{t.amount} BTC</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">{isSend ? 'Price at Send' : 'Buy Price'}</p>
-            <p className="font-mono">{formatCurrency(t.priceAtPurchase)}/BTC</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">{isSend ? 'Price at Send' : 'Buy Price'}</p>
+            <p className="font-mono text-sm sm:text-base">{formatCurrency(t.priceAtPurchase)}/BTC</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">{isSend ? 'Value Sent' : 'Cost Basis'}</p>
-            <p className="font-mono text-muted-foreground">{formatCurrency(cost)}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">{isSend ? 'Value Sent' : 'Cost Basis'}</p>
+            <p className="font-mono text-muted-foreground text-sm sm:text-base">{formatCurrency(cost)}</p>
           </div>
           {!isSend && (
             <div>
-              <p className="text-xs text-muted-foreground">Current Value</p>
-              <p className="font-mono">{currentPrice ? formatCurrency(currentVal) : '...'}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Current Value</p>
+              <p className="font-mono text-sm sm:text-base">{currentPrice ? formatCurrency(currentVal) : '...'}</p>
             </div>
           )}
         </div>
         
         {!isSend && (
-          <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Profit/Loss</span>
-            <div className={`flex items-center gap-1 font-mono font-semibold ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
-              {isProfit ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+          <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border/50 flex items-center justify-between">
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Profit/Loss</span>
+            <div className={`flex items-center gap-1 font-mono font-semibold text-sm sm:text-base ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
+              {isProfit ? <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <TrendingDown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
               {currentPrice ? `${pl > 0 ? '+' : ''}${formatCurrency(pl)}` : '...'}
             </div>
           </div>

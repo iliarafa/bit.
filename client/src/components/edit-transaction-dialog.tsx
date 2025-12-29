@@ -38,63 +38,63 @@ export function EditTransactionDialog({ transaction, open, onOpenChange, onSave 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-w-[calc(100vw-2rem)] mx-4">
         <DialogHeader>
-          <DialogTitle>Edit Transaction</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">Edit Transaction</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <div className="space-y-3 sm:space-y-4 py-3 sm:py-4">
           <Tabs value={type} onValueChange={(v) => setType(v as 'buy' | 'send')}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="buy">Buy</TabsTrigger>
-              <TabsTrigger value="send">Send</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 h-10 sm:h-9">
+              <TabsTrigger value="buy" className="text-sm">Buy</TabsTrigger>
+              <TabsTrigger value="send" className="text-sm">Send</TabsTrigger>
             </TabsList>
           </Tabs>
 
-          <div className="space-y-2">
-            <Label htmlFor="amount">BTC Amount</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="amount" className="text-xs sm:text-sm">BTC Amount</Label>
             <Input
               id="amount"
               type="number"
               step="any"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="font-mono"
+              className="font-mono h-11 sm:h-10 text-base sm:text-sm"
               data-testid="edit-input-amount"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="totalCost">{type === 'buy' ? 'Total Cost (USD)' : 'Value at Send (USD)'}</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="totalCost" className="text-xs sm:text-sm">{type === 'buy' ? 'Total Cost (USD)' : 'Value at Send (USD)'}</Label>
             <Input
               id="totalCost"
               type="number"
               step="any"
               value={totalCost}
               onChange={(e) => setTotalCost(e.target.value)}
-              className="font-mono"
+              className="font-mono h-11 sm:h-10 text-base sm:text-sm"
               data-testid="edit-input-cost"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="date">Transaction Date</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="date" className="text-xs sm:text-sm">Transaction Date</Label>
             <Input
               id="date"
               type="datetime-local"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="font-mono"
+              className="font-mono h-11 sm:h-10 text-base sm:text-sm"
               data-testid="edit-input-date"
             />
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto h-11 sm:h-10">
             Cancel
           </Button>
-          <Button onClick={handleSave} data-testid="button-save-edit">
+          <Button onClick={handleSave} data-testid="button-save-edit" className="w-full sm:w-auto h-11 sm:h-10">
             Save Changes
           </Button>
         </DialogFooter>

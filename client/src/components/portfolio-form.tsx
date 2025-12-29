@@ -57,39 +57,39 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
 
   return (
     <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-primary">
-          {txType === 'buy' ? <Plus className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
+      <CardHeader className="pb-3 sm:pb-6">
+        <CardTitle className="flex items-center gap-2 text-primary text-base sm:text-lg">
+          {txType === 'buy' ? <Plus className="h-4 w-4 sm:h-5 sm:w-5" /> : <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />}
           Add Transaction
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs sm:text-sm">
           {txType === 'buy' ? 'Enter details of your Bitcoin purchase' : 'Record Bitcoin you sent out'}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <Tabs value={txType} onValueChange={(v) => setTxType(v as 'buy' | 'send')} className="mb-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="buy" data-testid="tab-buy">Buy</TabsTrigger>
-            <TabsTrigger value="send" data-testid="tab-send">Send</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 h-10 sm:h-9">
+            <TabsTrigger value="buy" className="text-sm" data-testid="tab-buy">Buy</TabsTrigger>
+            <TabsTrigger value="send" className="text-sm" data-testid="tab-send">Send</TabsTrigger>
           </TabsList>
         </Tabs>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <FormField
                 control={form.control}
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>BTC Amount</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">BTC Amount</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="0.00" 
                         type="number"
                         step="any"
                         {...field} 
-                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors"
+                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors h-11 sm:h-10 text-base sm:text-sm"
                         data-testid="input-btc-amount"
                       />
                     </FormControl>
@@ -102,14 +102,14 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{txType === 'buy' ? 'Total Cost (USD)' : 'Value at Send (USD)'}</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">{txType === 'buy' ? 'Total Cost (USD)' : 'Value at Send (USD)'}</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="$0.00" 
                         type="number"
                         step="any"
                         {...field} 
-                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors"
+                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors h-11 sm:h-10 text-base sm:text-sm"
                          data-testid="input-btc-price"
                       />
                     </FormControl>
@@ -118,18 +118,18 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                 )}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Date</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Date</FormLabel>
                     <FormControl>
                       <Input 
                         type="date"
                         {...field} 
-                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors"
+                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors h-11 sm:h-10 text-base sm:text-sm"
                         data-testid="input-date"
                       />
                     </FormControl>
@@ -142,12 +142,12 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                 name="time"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Time</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Time</FormLabel>
                     <FormControl>
                       <Input 
                         type="time"
                         {...field} 
-                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors"
+                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors h-11 sm:h-10 text-base sm:text-sm"
                         data-testid="input-time"
                       />
                     </FormControl>
@@ -158,7 +158,7 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
             </div>
             <Button 
               type="submit" 
-              className="w-full font-semibold" 
+              className="w-full font-semibold h-11 sm:h-10 text-sm" 
               data-testid="button-add-transaction"
               variant={txType === 'send' ? 'secondary' : 'default'}
             >

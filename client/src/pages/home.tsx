@@ -63,33 +63,33 @@ export default function Home() {
       <main className="container mx-auto px-4 py-6 sm:p-6 md:p-8 relative z-10 max-w-6xl space-y-6 sm:space-y-8">
         
         {/* Header */}
-        <header className="flex flex-col gap-4 border-b border-border/40 pb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="space-y-1">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+        <header className="flex flex-col gap-3 sm:gap-4 border-b border-border/40 pb-4 sm:pb-6">
+          <div className="flex justify-between items-start gap-2">
+            <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
                 Bit.
               </h1>
-              <p className="text-muted-foreground text-sm sm:text-base md:text-lg">Real-time P/L tracking</p>
+              <p className="text-muted-foreground text-xs sm:text-base md:text-lg">Real-time P/L tracking</p>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               {btcPrice && (
-                <div className="text-2xl sm:text-3xl font-mono font-bold text-primary animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className="text-lg sm:text-3xl font-mono font-bold text-primary animate-in fade-in slide-in-from-right-4 duration-500">
                   ${btcPrice.toLocaleString()}
                 </div>
               )}
               
               {user && (
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
                     <AvatarImage src={user.profileImageUrl || undefined} alt={user.firstName || 'User'} />
-                    <AvatarFallback>{user.firstName?.[0] || user.email?.[0] || 'U'}</AvatarFallback>
+                    <AvatarFallback className="text-xs">{user.firstName?.[0] || user.email?.[0] || 'U'}</AvatarFallback>
                   </Avatar>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => logout()}
-                    className="h-8 text-muted-foreground hover:text-foreground"
+                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-muted-foreground hover:text-foreground"
                     data-testid="button-logout"
                   >
                     <LogOut className="h-4 w-4" />
@@ -99,20 +99,20 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="flex items-center justify-between sm:justify-end gap-3">
-            <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] sm:text-sm text-muted-foreground flex items-center gap-1 flex-shrink-0">
               <Clock className="h-3 w-3" />
-              <span className="hidden xs:inline">Last updated:</span> {lastUpdated ? format(lastUpdated, 'HH:mm:ss') : 'Never'}
+              {lastUpdated ? format(lastUpdated, 'HH:mm:ss') : 'Never'}
             </span>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 sm:gap-2 flex-wrap justify-end">
               <Link href="/arcade">
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="h-8 border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/10 hover:text-purple-400 transition-all"
+                  className="h-8 sm:h-8 px-2 sm:px-3 border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/10 hover:text-purple-400 transition-all"
                   data-testid="button-arcade"
                 >
-                  <Gamepad2 className="h-3 w-3 mr-1.5" />
+                  <Gamepad2 className="h-3.5 w-3.5 sm:mr-1.5" />
                   <span className="hidden sm:inline">Arcade</span>
                 </Button>
               </Link>
@@ -122,10 +122,10 @@ export default function Home() {
                 size="sm" 
                 onClick={() => refreshPrice()} 
                 disabled={isLoading}
-                className="h-8 border-primary/20 hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all"
+                className="h-8 sm:h-8 px-2 sm:px-3 border-primary/20 hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all"
                 data-testid="button-refresh-price"
               >
-                <RefreshCw className={`h-3 w-3 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-3.5 w-3.5 sm:mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
                 <span className="hidden sm:inline">Refresh</span>
               </Button>
             </div>
