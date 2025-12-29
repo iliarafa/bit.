@@ -59,7 +59,7 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                     <FormLabel>BTC Amount</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="0.05" 
+                        placeholder="0.00" 
                         type="number"
                         step="any"
                         {...field} 
@@ -80,7 +80,7 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                     <FormLabel>Total Cost (USD)</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="1000" 
+                        placeholder="$0.00" 
                         type="number"
                         step="any"
                         {...field} 
