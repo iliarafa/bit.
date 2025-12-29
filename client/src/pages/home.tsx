@@ -32,10 +32,8 @@ export default function Home() {
           backgroundRepeat: 'no-repeat'
         }}
       />
-      
       {/* Gradient Overlay for better text readability */}
       <div className="fixed inset-0 z-0 bg-gradient-to-b from-background/80 via-background/90 to-background pointer-events-none" />
-
       <main className="container mx-auto px-4 py-6 sm:p-6 md:p-8 relative z-10 max-w-6xl space-y-6 sm:space-y-8">
         
         {/* Header */}
@@ -45,9 +43,7 @@ export default function Home() {
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
                 Bit.
               </h1>
-              <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
-                Manage your portfolio and track profit/loss in real-time.
-              </p>
+              <p className="text-muted-foreground text-sm sm:text-base md:text-lg">Real-time P/L .</p>
             </div>
             
             {btcPrice && (
