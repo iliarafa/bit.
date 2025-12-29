@@ -44,7 +44,7 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-primary">
           {txType === 'buy' ? <Plus className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
-          {txType === 'buy' ? 'Add Purchase' : 'Record Send'}
+          Add Transaction
         </CardTitle>
         <CardDescription>
           {txType === 'buy' ? 'Enter details of your Bitcoin purchase' : 'Record Bitcoin you sent out'}
