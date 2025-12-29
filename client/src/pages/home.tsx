@@ -34,42 +34,43 @@ export default function Home() {
       {/* Gradient Overlay for better text readability */}
       <div className="fixed inset-0 z-0 bg-gradient-to-b from-background/80 via-background/90 to-background pointer-events-none" />
 
-      <main className="container mx-auto p-6 md:p-8 relative z-10 max-w-6xl space-y-8">
+      <main className="container mx-auto px-4 py-6 sm:p-6 md:p-8 relative z-10 max-w-6xl space-y-6 sm:space-y-8">
         
         {/* Header */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-border/40 pb-6">
-          <div className="space-y-2">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
-              Bitcoin Tracker
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Manage your portfolio and track profit/loss in real-time.
-            </p>
-          </div>
-          
-          <div className="flex flex-col items-end gap-2">
-            <div className="flex items-center gap-2">
-               <span className="text-sm text-muted-foreground flex items-center gap-1">
-                 <Clock className="h-3 w-3" />
-                 Last updated: {lastUpdated ? format(lastUpdated, 'HH:mm:ss') : 'Never'}
-               </span>
-               <Button 
-                 variant="outline" 
-                 size="sm" 
-                 onClick={() => refreshPrice()} 
-                 disabled={isLoading}
-                 className="h-8 border-primary/20 hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all"
-                 data-testid="button-refresh-price"
-               >
-                 <RefreshCw className={`h-3 w-3 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                 Refresh
-               </Button>
+        <header className="flex flex-col gap-4 border-b border-border/40 pb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="space-y-1">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+                Bitcoin Tracker
+              </h1>
+              <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
+                Manage your portfolio and track profit/loss in real-time.
+              </p>
             </div>
+            
             {btcPrice && (
-              <div className="text-3xl font-mono font-bold text-primary animate-in fade-in slide-in-from-right-4 duration-500">
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-primary animate-in fade-in slide-in-from-right-4 duration-500">
                 ${btcPrice.toLocaleString()}
               </div>
             )}
+          </div>
+          
+          <div className="flex items-center justify-between sm:justify-end gap-3">
+            <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              <span className="hidden xs:inline">Last updated:</span> {lastUpdated ? format(lastUpdated, 'HH:mm:ss') : 'Never'}
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => refreshPrice()} 
+              disabled={isLoading}
+              className="h-8 border-primary/20 hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all"
+              data-testid="button-refresh-price"
+            >
+              <RefreshCw className={`h-3 w-3 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </Button>
           </div>
         </header>
 
@@ -83,7 +84,7 @@ export default function Home() {
         </section>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Input Form Column */}
           <div className="lg:col-span-1">
             <PortfolioForm onAdd={addTransaction} currentPrice={btcPrice} />

@@ -2,7 +2,7 @@ import { Transaction } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface PortfolioListProps {
@@ -11,75 +11,155 @@ interface PortfolioListProps {
   currentPrice: number | null;
 }
 
+function MobileTransactionCard({ t, onRemove, currentPrice, formatCurrency }: { 
+  t: Transaction; 
+  onRemove: (id: string) => void; 
+  currentPrice: number | null;
+  formatCurrency: (val: number) => string;
+}) {
+  const cost = t.amount * t.priceAtPurchase;
+  const currentVal = currentPrice ? t.amount * currentPrice : 0;
+  const pl = currentVal - cost;
+  const isProfit = pl >= 0;
+
+  return (
+    <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Calendar className="h-3 w-3" />
+            {format(new Date(t.date), 'MMM dd, yyyy')}
+          </div>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={() => onRemove(t.id)}
+            data-testid={`button-delete-mobile-${t.id}`}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="text-xs text-muted-foreground">Amount</p>
+            <p className="font-mono font-semibold">{t.amount} BTC</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Buy Price</p>
+            <p className="font-mono">{formatCurrency(t.priceAtPurchase)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Cost Basis</p>
+            <p className="font-mono text-muted-foreground">{formatCurrency(cost)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Current Value</p>
+            <p className="font-mono">{currentPrice ? formatCurrency(currentVal) : '...'}</p>
+          </div>
+        </div>
+        
+        <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Profit/Loss</span>
+          <div className={`flex items-center gap-1 font-mono font-semibold ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
+            {isProfit ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+            {currentPrice ? `${pl > 0 ? '+' : ''}${formatCurrency(pl)}` : '...'}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function PortfolioList({ transactions, onRemove, currentPrice }: PortfolioListProps) {
   const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
   
   if (transactions.length === 0) {
     return (
-      <Card className="border-border/50 bg-card/50 backdrop-blur-sm min-h-[300px] flex items-center justify-center text-center">
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm min-h-[200px] flex items-center justify-center text-center">
         <CardContent className="pt-6">
-           <div className="text-muted-foreground">No transactions yet. Add your first Bitcoin purchase above.</div>
+          <div className="text-muted-foreground">No transactions yet. Add your first Bitcoin purchase above.</div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
-      <CardHeader>
-        <CardTitle>Purchase History</CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader className="bg-muted/50">
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Amount (BTC)</TableHead>
-              <TableHead>Buy Price</TableHead>
-              <TableHead>Cost Basis</TableHead>
-              <TableHead>Current Value</TableHead>
-              <TableHead>P/L</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {transactions.map((t) => {
-              const cost = t.amount * t.priceAtPurchase;
-              const currentVal = currentPrice ? t.amount * currentPrice : 0;
-              const pl = currentVal - cost;
-              const isProfit = pl >= 0;
+    <>
+      {/* Mobile view - card list */}
+      <div className="md:hidden space-y-3">
+        <h3 className="text-lg font-semibold mb-4">Purchase History</h3>
+        {transactions.map((t) => (
+          <MobileTransactionCard 
+            key={t.id} 
+            t={t} 
+            onRemove={onRemove} 
+            currentPrice={currentPrice}
+            formatCurrency={formatCurrency}
+          />
+        ))}
+      </div>
 
-              return (
-                <TableRow key={t.id} className="group hover:bg-muted/50 transition-colors">
-                  <TableCell className="font-mono text-xs text-muted-foreground">
-                    {format(new Date(t.date), 'MMM dd, yyyy HH:mm')}
-                  </TableCell>
-                  <TableCell className="font-mono font-medium">{t.amount}</TableCell>
-                  <TableCell className="font-mono">{formatCurrency(t.priceAtPurchase)}</TableCell>
-                  <TableCell className="font-mono text-muted-foreground">{formatCurrency(cost)}</TableCell>
-                  <TableCell className="font-mono">
-                     {currentPrice ? formatCurrency(currentVal) : '...'}
-                  </TableCell>
-                  <TableCell className={`font-mono ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
-                    {currentPrice ? `${pl > 0 ? '+' : ''}${formatCurrency(pl)}` : '...'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => onRemove(t.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
-                      data-testid={`button-delete-${t.id}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
+      {/* Desktop view - table */}
+      <Card className="hidden md:block border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
+        <CardHeader>
+          <CardTitle>Purchase History</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Amount (BTC)</TableHead>
+                  <TableHead>Buy Price</TableHead>
+                  <TableHead>Cost Basis</TableHead>
+                  <TableHead>Current Value</TableHead>
+                  <TableHead>P/L</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+              </TableHeader>
+              <TableBody>
+                {transactions.map((t) => {
+                  const cost = t.amount * t.priceAtPurchase;
+                  const currentVal = currentPrice ? t.amount * currentPrice : 0;
+                  const pl = currentVal - cost;
+                  const isProfit = pl >= 0;
+
+                  return (
+                    <TableRow key={t.id} className="group hover:bg-muted/50 transition-colors">
+                      <TableCell className="font-mono text-xs text-muted-foreground">
+                        {format(new Date(t.date), 'MMM dd, yyyy HH:mm')}
+                      </TableCell>
+                      <TableCell className="font-mono font-medium">{t.amount}</TableCell>
+                      <TableCell className="font-mono">{formatCurrency(t.priceAtPurchase)}</TableCell>
+                      <TableCell className="font-mono text-muted-foreground">{formatCurrency(cost)}</TableCell>
+                      <TableCell className="font-mono">
+                        {currentPrice ? formatCurrency(currentVal) : '...'}
+                      </TableCell>
+                      <TableCell className={`font-mono ${isProfit ? 'text-green-500' : 'text-red-500'}`}>
+                        {currentPrice ? `${pl > 0 ? '+' : ''}${formatCurrency(pl)}` : '...'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => onRemove(t.id)}
+                          className="opacity-50 hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                          data-testid={`button-delete-${t.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 }

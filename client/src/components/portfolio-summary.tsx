@@ -24,18 +24,18 @@ export function PortfolioSummary({ transactions, currentPrice, isLoading }: Port
   const StatCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
     <Card className="border-border/50 bg-card/50 backdrop-blur-sm relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
+        <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
         <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold font-mono tracking-tight">
+      <CardContent className="px-4 pb-4">
+        <div className="text-lg sm:text-xl md:text-2xl font-bold font-mono tracking-tight truncate">
            {isLoading && title === "Current Value" ? "Loading..." : value}
         </div>
         {(subValue || trend) && (
-          <p className={`text-xs mt-1 flex items-center ${
+          <p className={`text-[10px] sm:text-xs mt-1 flex items-center ${
             trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-muted-foreground'
           }`}>
              {trend === 'up' && <ArrowUpRight className="h-3 w-3 mr-1" />}
@@ -48,7 +48,7 @@ export function PortfolioSummary({ transactions, currentPrice, isLoading }: Port
   );
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <StatCard 
           title="Total Bitcoin" 
