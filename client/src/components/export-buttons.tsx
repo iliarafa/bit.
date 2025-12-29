@@ -105,9 +105,9 @@ export function ExportButtons({ transactions, btcPrice }: ExportButtonsProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="gap-2" data-testid="button-export">
-          <Download className="h-4 w-4" />
-          Export
+        <Button variant="outline" size="sm" className="h-8 gap-2" data-testid="button-export">
+          <Download className="h-3 w-3" />
+          <span className="hidden sm:inline">Export</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
