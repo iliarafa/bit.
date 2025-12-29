@@ -77,9 +77,6 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                         data-testid="input-btc-amount"
                       />
                     </FormControl>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {txType === 'buy' ? 'How much Bitcoin you bought' : 'How much Bitcoin you sent'}
-                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -100,9 +97,6 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                          data-testid="input-btc-price"
                       />
                     </FormControl>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {txType === 'buy' ? 'How much USD you spent' : 'USD value when you sent it'}
-                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
