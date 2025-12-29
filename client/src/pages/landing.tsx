@@ -21,7 +21,7 @@ export default function Landing() {
       <button
         onClick={handleLogin}
         disabled={isLoading}
-        className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60 hover:from-primary hover:to-primary/60 transition-all duration-300 cursor-pointer disabled:opacity-50"
+        className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight text-white hover:text-primary transition-all duration-300 cursor-pointer disabled:opacity-50"
         data-testid="button-enter-app"
       >
         Bit.
