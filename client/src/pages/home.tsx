@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { PortfolioForm } from '@/components/portfolio-form';
 import { PortfolioSummary } from '@/components/portfolio-summary';
 import { PortfolioList } from '@/components/portfolio-list';
+import { PortfolioChart } from '@/components/portfolio-chart';
 import { ExportButtons } from '@/components/export-buttons';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -158,6 +159,11 @@ export default function Home() {
              />
           </div>
         </div>
+
+        {/* Portfolio Value Chart */}
+        <section>
+          <PortfolioChart transactions={transactions} currentPrice={btcPrice} />
+        </section>
         
       </main>
     </div>

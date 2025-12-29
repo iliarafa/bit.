@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { PortfolioForm } from '@/components/portfolio-form';
 import { PortfolioSummary } from '@/components/portfolio-summary';
 import { PortfolioList } from '@/components/portfolio-list';
+import { PortfolioChart } from '@/components/portfolio-chart';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { RefreshCw, Clock, LogOut, Gamepad2, ArrowLeft } from 'lucide-react';
@@ -157,6 +158,11 @@ export default function Arcade() {
              />
           </div>
         </div>
+
+        {/* Portfolio Value Chart */}
+        <section>
+          <PortfolioChart transactions={transactions} currentPrice={btcPrice} />
+        </section>
         
       </main>
     </div>
