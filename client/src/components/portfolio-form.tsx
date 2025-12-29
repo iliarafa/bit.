@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, ArrowUpRight } from 'lucide-react';
+import { Plus, ArrowUpRight, Zap } from 'lucide-react';
 
 const formSchema = z.object({
   amount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
@@ -103,16 +103,36 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs sm:text-sm">{txType === 'buy' ? 'Total Cost (USD)' : 'Value at Send (USD)'}</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="$0.00" 
-                        type="number"
-                        step="any"
-                        {...field} 
-                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors h-11 sm:h-10 text-base sm:text-sm"
-                         data-testid="input-btc-price"
-                      />
-                    </FormControl>
+                    <div className="flex gap-2">
+                      <FormControl>
+                        <Input 
+                          placeholder="$0.00" 
+                          type="number"
+                          step="any"
+                          {...field} 
+                          className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors h-11 sm:h-10 text-base sm:text-sm"
+                          data-testid="input-btc-price"
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-11 sm:h-10 w-11 sm:w-10 shrink-0 border-primary/30 hover:bg-primary/10 hover:border-primary/50"
+                        onClick={() => {
+                          const amount = Number(form.getValues('amount'));
+                          if (currentPrice && amount > 0) {
+                            const total = (amount * currentPrice).toFixed(2);
+                            form.setValue('price', total);
+                          }
+                        }}
+                        disabled={!currentPrice}
+                        title="Use current BTC price"
+                        data-testid="button-use-current-price"
+                      >
+                        <Zap className="h-4 w-4 text-primary" />
+                      </Button>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
