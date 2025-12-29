@@ -60,11 +60,14 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                     <FormControl>
                       <Input 
                         placeholder="0.05" 
+                        type="number"
+                        step="any"
                         {...field} 
                         className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors"
                         data-testid="input-btc-amount"
                       />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground mt-1">How much Bitcoin you bought</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -74,15 +77,18 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Purchase Price (USD)</FormLabel>
+                    <FormLabel>Price per BTC (USD)</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder={currentPrice ? currentPrice.toString() : "50000"} 
+                        placeholder={currentPrice ? currentPrice.toLocaleString() : "50000"} 
+                        type="number"
+                        step="any"
                         {...field} 
                         className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors"
                          data-testid="input-btc-price"
                       />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground mt-1">BTC price when you bought (e.g., {currentPrice ? `$${currentPrice.toLocaleString()}` : '$87,000'})</p>
                     <FormMessage />
                   </FormItem>
                 )}
