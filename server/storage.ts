@@ -8,19 +8,20 @@ export interface CreateTransactionData {
   amount: number;
   priceAtPurchase: number;
   date?: Date;
+  isArcade?: boolean;
 }
 
 export interface IStorage {
-  getTransactionsByUser(userId: string): Promise<Transaction[]>;
+  getTransactionsByUser(userId: string, isArcade?: boolean): Promise<Transaction[]>;
   createTransaction(transaction: CreateTransactionData): Promise<Transaction>;
   updateTransaction(id: string, userId: string, data: { type: string; amount: number; priceAtPurchase: number; date: Date }): Promise<Transaction>;
   deleteTransaction(id: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getTransactionsByUser(userId: string): Promise<Transaction[]> {
+  async getTransactionsByUser(userId: string, isArcade: boolean = false): Promise<Transaction[]> {
     return await db.select().from(transactions)
-      .where(eq(transactions.userId, userId))
+      .where(and(eq(transactions.userId, userId), eq(transactions.isArcade, isArcade)))
       .orderBy(desc(transactions.date));
   }
 

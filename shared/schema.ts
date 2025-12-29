@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, real, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, real, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -12,6 +12,7 @@ export const transactions = pgTable("transactions", {
   amount: real("amount").notNull(),
   priceAtPurchase: real("price_at_purchase").notNull(),
   date: timestamp("date", { withTimezone: true }).notNull().defaultNow(),
+  isArcade: boolean("is_arcade").notNull().default(false),
 });
 
 export const insertTransactionSchema = createInsertSchema(transactions).omit({
