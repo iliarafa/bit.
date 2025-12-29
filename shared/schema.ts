@@ -16,7 +16,8 @@ export const transactions = pgTable("transactions", {
 
 export const insertTransactionSchema = createInsertSchema(transactions).omit({
   id: true,
-  date: true,
+}).extend({
+  date: z.string().optional(),
 });
 
 export const updateTransactionSchema = z.object({

@@ -38,7 +38,7 @@ async function fetchTransactions(): Promise<Transaction[]> {
   return data.map(normalizeTransaction);
 }
 
-async function createTransaction(data: { type: string; amount: number; priceAtPurchase: number }): Promise<Transaction> {
+async function createTransaction(data: { type: string; amount: number; priceAtPurchase: number; date?: string }): Promise<Transaction> {
   const res = await fetch('/api/transactions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -165,9 +165,9 @@ export function usePortfolio() {
     return () => clearInterval(interval);
   }, []);
 
-  const addTransaction = (type: 'buy' | 'send', amount: number, totalCost: number) => {
+  const addTransaction = (type: 'buy' | 'send', amount: number, totalCost: number, date?: string) => {
     const priceAtPurchase = totalCost / amount;
-    createMutation.mutate({ type, amount, priceAtPurchase });
+    createMutation.mutate({ type, amount, priceAtPurchase, date });
   };
 
   const editTransaction = (id: string, type: 'buy' | 'send', amount: number, totalCost: number, date: string) => {

@@ -27,7 +27,13 @@ export async function registerRoutes(
     try {
       const userId = req.user.claims.sub;
       const validatedData = insertTransactionSchema.parse({ ...req.body, userId });
-      const newTransaction = await storage.createTransaction(validatedData);
+      const newTransaction = await storage.createTransaction({
+        userId: validatedData.userId,
+        type: validatedData.type,
+        amount: validatedData.amount,
+        priceAtPurchase: validatedData.priceAtPurchase,
+        date: validatedData.date ? new Date(validatedData.date) : undefined,
+      });
       res.status(201).json(newTransaction);
     } catch (error) {
       if (error instanceof z.ZodError) {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,27 +17,42 @@ const formSchema = z.object({
   price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
     message: "Cost must be a non-negative number",
   }),
+  date: z.string().min(1, "Date is required"),
+  time: z.string().min(1, "Time is required"),
 });
 
 interface PortfolioFormProps {
-  onAdd: (type: 'buy' | 'send', amount: number, price: number) => void;
+  onAdd: (type: 'buy' | 'send', amount: number, price: number, date: string) => void;
   currentPrice: number | null;
 }
 
 export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
   const [txType, setTxType] = useState<'buy' | 'send'>('buy');
   
+  const now = new Date();
+  const defaultDate = format(now, 'yyyy-MM-dd');
+  const defaultTime = format(now, 'HH:mm');
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: "",
       price: "",
+      date: defaultDate,
+      time: defaultTime,
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    onAdd(txType, Number(values.amount), Number(values.price));
-    form.reset({ amount: "", price: "" });
+    const dateTime = new Date(`${values.date}T${values.time}`).toISOString();
+    onAdd(txType, Number(values.amount), Number(values.price), dateTime);
+    const now = new Date();
+    form.reset({ 
+      amount: "", 
+      price: "", 
+      date: format(now, 'yyyy-MM-dd'),
+      time: format(now, 'HH:mm')
+    });
   }
 
   return (
@@ -95,6 +111,44 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                         {...field} 
                         className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors"
                          data-testid="input-btc-price"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="date"
+                        {...field} 
+                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors"
+                        data-testid="input-date"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="time"
+                        {...field} 
+                        className="font-mono bg-background/50 border-input/50 focus:border-primary/50 transition-colors"
+                        data-testid="input-time"
                       />
                     </FormControl>
                     <FormMessage />

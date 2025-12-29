@@ -1,10 +1,18 @@
-import { type Transaction, type InsertTransaction, transactions } from "@shared/schema";
+import { type Transaction, transactions } from "@shared/schema";
 import { db } from "./db";
 import { and, desc, eq } from "drizzle-orm";
 
+export interface CreateTransactionData {
+  userId: string;
+  type?: string;
+  amount: number;
+  priceAtPurchase: number;
+  date?: Date;
+}
+
 export interface IStorage {
   getTransactionsByUser(userId: string): Promise<Transaction[]>;
-  createTransaction(transaction: InsertTransaction): Promise<Transaction>;
+  createTransaction(transaction: CreateTransactionData): Promise<Transaction>;
   updateTransaction(id: string, userId: string, data: { type: string; amount: number; priceAtPurchase: number; date: Date }): Promise<Transaction>;
   deleteTransaction(id: string, userId: string): Promise<void>;
 }
@@ -16,7 +24,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(transactions.date));
   }
 
-  async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
+  async createTransaction(transaction: CreateTransactionData): Promise<Transaction> {
     const [newTransaction] = await db.insert(transactions).values(transaction).returning();
     return newTransaction;
   }
