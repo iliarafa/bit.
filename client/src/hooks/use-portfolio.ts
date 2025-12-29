@@ -9,12 +9,30 @@ interface Transaction {
   date: string;
 }
 
+interface ApiTransaction {
+  id: string;
+  amount: number;
+  priceAtPurchase?: number;
+  price_at_purchase?: number;
+  date: string;
+}
+
 const COINGECKO_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd';
+
+function normalizeTransaction(t: ApiTransaction): Transaction {
+  return {
+    id: t.id,
+    amount: Number(t.amount),
+    priceAtPurchase: Number(t.priceAtPurchase ?? t.price_at_purchase ?? 0),
+    date: t.date,
+  };
+}
 
 async function fetchTransactions(): Promise<Transaction[]> {
   const res = await fetch('/api/transactions');
   if (!res.ok) throw new Error('Failed to fetch transactions');
-  return res.json();
+  const data: ApiTransaction[] = await res.json();
+  return data.map(normalizeTransaction);
 }
 
 async function createTransaction(data: { amount: number; priceAtPurchase: number }): Promise<Transaction> {
@@ -24,7 +42,8 @@ async function createTransaction(data: { amount: number; priceAtPurchase: number
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('Failed to create transaction');
-  return res.json();
+  const result = await res.json();
+  return normalizeTransaction(result);
 }
 
 async function deleteTransaction(id: string): Promise<void> {
@@ -48,11 +67,11 @@ export function usePortfolio() {
 
   const createMutation = useMutation({
     mutationFn: createTransaction,
-    onSuccess: () => {
+    onSuccess: (newTx) => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast({
         title: "Transaction Added",
-        description: "Added BTC to your portfolio."
+        description: `Added ${newTx.amount} BTC at $${newTx.priceAtPurchase.toLocaleString()}/BTC`
       });
     },
     onError: () => {
