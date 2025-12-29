@@ -77,10 +77,10 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price per BTC (USD)</FormLabel>
+                    <FormLabel>Total Cost (USD)</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder={currentPrice ? currentPrice.toLocaleString() : "50000"} 
+                        placeholder="1000" 
                         type="number"
                         step="any"
                         {...field} 
@@ -88,7 +88,7 @@ export function PortfolioForm({ onAdd, currentPrice }: PortfolioFormProps) {
                          data-testid="input-btc-price"
                       />
                     </FormControl>
-                    <p className="text-xs text-muted-foreground mt-1">BTC price when you bought (e.g., {currentPrice ? `$${currentPrice.toLocaleString()}` : '$87,000'})</p>
+                    <p className="text-xs text-muted-foreground mt-1">How much USD you spent on this purchase</p>
                     <FormMessage />
                   </FormItem>
                 )}

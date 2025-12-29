@@ -127,7 +127,8 @@ export function usePortfolio() {
     return () => clearInterval(interval);
   }, []);
 
-  const addTransaction = (amount: number, priceAtPurchase: number) => {
+  const addTransaction = (amount: number, totalCost: number) => {
+    const priceAtPurchase = totalCost / amount;
     createMutation.mutate({ amount, priceAtPurchase });
   };
 
