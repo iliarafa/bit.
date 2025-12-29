@@ -30,8 +30,11 @@ export const insertTransactionSchema = createInsertSchema(transactions).omit({
   date: true,
 });
 
-export const updateTransactionSchema = createInsertSchema(transactions).omit({
-  id: true,
+export const updateTransactionSchema = z.object({
+  type: z.string(),
+  amount: z.number(),
+  priceAtPurchase: z.number(),
+  date: z.string(),
 });
 
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
