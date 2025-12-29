@@ -1,11 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Download, FileSpreadsheet, FileText, File } from 'lucide-react';
+import { Download, FileText, File } from 'lucide-react';
 import { Transaction } from '@/hooks/use-portfolio';
 import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
 
 interface ExportButtonsProps {
   transactions: Transaction[];
@@ -79,35 +78,18 @@ export function ExportButtons({ transactions, btcPrice }: ExportButtonsProps) {
     doc.save(`btc-portfolio-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
   };
 
-  const exportExcel = () => {
-    const data = formatData();
-    if (data.length === 0) return;
-    
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Portfolio');
-    
-    ws['!cols'] = [
-      { wch: 8 },
-      { wch: 18 },
-      { wch: 14 },
-      { wch: 16 },
-      { wch: 18 },
-      { wch: 18 },
-      { wch: 14 },
-    ];
-    
-    XLSX.writeFile(wb, `btc-portfolio-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
-  };
-
   if (transactions.length === 0) return null;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 gap-2" data-testid="button-export">
-          <Download className="h-3 w-3" />
-          <span className="hidden sm:inline">Export</span>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="h-8 w-8 border-primary/20 hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all" 
+          data-testid="button-export"
+        >
+          <Download className="h-3.5 w-3.5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -118,10 +100,6 @@ export function ExportButtons({ transactions, btcPrice }: ExportButtonsProps) {
         <DropdownMenuItem onClick={exportPDF} className="gap-2 cursor-pointer" data-testid="button-export-pdf">
           <File className="h-4 w-4" />
           Export as PDF
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={exportExcel} className="gap-2 cursor-pointer" data-testid="button-export-excel">
-          <FileSpreadsheet className="h-4 w-4" />
-          Export as Excel
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
