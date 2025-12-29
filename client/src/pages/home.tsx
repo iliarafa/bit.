@@ -2,6 +2,7 @@ import { usePortfolio } from '@/hooks/use-portfolio';
 import { PortfolioForm } from '@/components/portfolio-form';
 import { PortfolioSummary } from '@/components/portfolio-summary';
 import { PortfolioList } from '@/components/portfolio-list';
+import { ExportButtons } from '@/components/export-buttons';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Clock } from 'lucide-react';
 import { format } from 'date-fns';
@@ -42,7 +43,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="space-y-1">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
-                Bitcoin Tracker
+                Bit.
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
                 Manage your portfolio and track profit/loss in real-time.
