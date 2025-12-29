@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Transaction } from '@/hooks/use-portfolio';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Calendar, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, Pencil } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Trash2, Calendar, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, Pencil, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { EditTransactionDialog } from './edit-transaction-dialog';
 
@@ -14,6 +15,9 @@ interface PortfolioListProps {
   onEdit: (id: string, type: 'buy' | 'send', amount: number, totalCost: number, date: string) => void;
   currentPrice: number | null;
 }
+
+type SortField = 'date' | 'amount' | 'price' | 'value' | 'type';
+type SortDirection = 'asc' | 'desc';
 
 function MobileTransactionCard({ t, onRemove, onEdit, currentPrice, formatCurrency }: { 
   t: Transaction; 
@@ -99,9 +103,122 @@ function MobileTransactionCard({ t, onRemove, onEdit, currentPrice, formatCurren
   );
 }
 
+function SortableHeader({ 
+  label, 
+  field, 
+  currentSort, 
+  currentDirection, 
+  onSort 
+}: { 
+  label: string; 
+  field: SortField; 
+  currentSort: SortField; 
+  currentDirection: SortDirection;
+  onSort: (field: SortField) => void;
+}) {
+  const isActive = currentSort === field;
+  
+  return (
+    <TableHead 
+      className="cursor-pointer hover:bg-muted/30 transition-colors select-none"
+      onClick={() => onSort(field)}
+    >
+      <div className="flex items-center gap-1">
+        {label}
+        {isActive ? (
+          currentDirection === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+        ) : (
+          <ArrowUpDown className="h-3 w-3 opacity-30" />
+        )}
+      </div>
+    </TableHead>
+  );
+}
+
 export function PortfolioList({ transactions, onRemove, onEdit, currentPrice }: PortfolioListProps) {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [sortField, setSortField] = useState<SortField>('date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [mobileSortField, setMobileSortField] = useState<SortField>('date');
+  
   const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const sortedTransactions = useMemo(() => {
+    const sorted = [...transactions].sort((a, b) => {
+      let aVal: number, bVal: number;
+      
+      switch (sortField) {
+        case 'date':
+          aVal = new Date(a.date).getTime();
+          bVal = new Date(b.date).getTime();
+          break;
+        case 'amount':
+          aVal = a.amount;
+          bVal = b.amount;
+          break;
+        case 'price':
+          aVal = a.priceAtPurchase;
+          bVal = b.priceAtPurchase;
+          break;
+        case 'value':
+          aVal = a.amount * a.priceAtPurchase;
+          bVal = b.amount * b.priceAtPurchase;
+          break;
+        case 'type':
+          aVal = a.type === 'buy' ? 0 : 1;
+          bVal = b.type === 'buy' ? 0 : 1;
+          break;
+        default:
+          return 0;
+      }
+      
+      return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+    
+    return sorted;
+  }, [transactions, sortField, sortDirection]);
+
+  const mobileSortedTransactions = useMemo(() => {
+    return [...transactions].sort((a, b) => {
+      let aVal: number, bVal: number;
+      
+      switch (mobileSortField) {
+        case 'date':
+          aVal = new Date(a.date).getTime();
+          bVal = new Date(b.date).getTime();
+          break;
+        case 'amount':
+          aVal = a.amount;
+          bVal = b.amount;
+          break;
+        case 'price':
+          aVal = a.priceAtPurchase;
+          bVal = b.priceAtPurchase;
+          break;
+        case 'value':
+          aVal = a.amount * a.priceAtPurchase;
+          bVal = b.amount * b.priceAtPurchase;
+          break;
+        case 'type':
+          aVal = a.type === 'buy' ? 0 : 1;
+          bVal = b.type === 'buy' ? 0 : 1;
+          break;
+        default:
+          return 0;
+      }
+      
+      return bVal - aVal;
+    });
+  }, [transactions, mobileSortField]);
   
   if (transactions.length === 0) {
     return (
@@ -124,8 +241,22 @@ export function PortfolioList({ transactions, onRemove, onEdit, currentPrice }: 
 
       {/* Mobile view - card list */}
       <div className="md:hidden space-y-3">
-        <h3 className="text-lg font-semibold mb-4">Transaction History</h3>
-        {transactions.map((t) => (
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Transaction History</h3>
+          <Select value={mobileSortField} onValueChange={(v) => setMobileSortField(v as SortField)}>
+            <SelectTrigger className="w-[140px] h-8" data-testid="mobile-sort-select">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date">Date</SelectItem>
+              <SelectItem value="amount">Amount</SelectItem>
+              <SelectItem value="price">Price</SelectItem>
+              <SelectItem value="value">Total Value</SelectItem>
+              <SelectItem value="type">Type</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        {mobileSortedTransactions.map((t) => (
           <MobileTransactionCard 
             key={t.id} 
             t={t} 
@@ -147,18 +278,18 @@ export function PortfolioList({ transactions, onRemove, onEdit, currentPrice }: 
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Amount (BTC)</TableHead>
-                  <TableHead>Price/BTC</TableHead>
-                  <TableHead>Total Value</TableHead>
+                  <SortableHeader label="Type" field="type" currentSort={sortField} currentDirection={sortDirection} onSort={handleSort} />
+                  <SortableHeader label="Date" field="date" currentSort={sortField} currentDirection={sortDirection} onSort={handleSort} />
+                  <SortableHeader label="Amount (BTC)" field="amount" currentSort={sortField} currentDirection={sortDirection} onSort={handleSort} />
+                  <SortableHeader label="Price/BTC" field="price" currentSort={sortField} currentDirection={sortDirection} onSort={handleSort} />
+                  <SortableHeader label="Total Value" field="value" currentSort={sortField} currentDirection={sortDirection} onSort={handleSort} />
                   <TableHead>Current Value</TableHead>
                   <TableHead>P/L</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.map((t) => {
+                {sortedTransactions.map((t) => {
                   const cost = t.amount * t.priceAtPurchase;
                   const currentVal = currentPrice ? t.amount * currentPrice : 0;
                   const pl = t.type === 'buy' ? currentVal - cost : 0;

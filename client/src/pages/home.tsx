@@ -62,17 +62,20 @@ export default function Home() {
               <Clock className="h-3 w-3" />
               <span className="hidden xs:inline">Last updated:</span> {lastUpdated ? format(lastUpdated, 'HH:mm:ss') : 'Never'}
             </span>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => refreshPrice()} 
-              disabled={isLoading}
-              className="h-8 border-primary/20 hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all"
-              data-testid="button-refresh-price"
-            >
-              <RefreshCw className={`h-3 w-3 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Refresh</span>
-            </Button>
+            <div className="flex gap-2">
+              <ExportButtons transactions={transactions} btcPrice={btcPrice} />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => refreshPrice()} 
+                disabled={isLoading}
+                className="h-8 border-primary/20 hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all"
+                data-testid="button-refresh-price"
+              >
+                <RefreshCw className={`h-3 w-3 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            </div>
           </div>
         </header>
 
