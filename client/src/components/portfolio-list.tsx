@@ -1,20 +1,24 @@
+import { useState } from 'react';
 import { Transaction } from '@/hooks/use-portfolio';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Calendar, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Trash2, Calendar, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
+import { EditTransactionDialog } from './edit-transaction-dialog';
 
 interface PortfolioListProps {
   transactions: Transaction[];
   onRemove: (id: string) => void;
+  onEdit: (id: string, type: 'buy' | 'send', amount: number, totalCost: number, date: string) => void;
   currentPrice: number | null;
 }
 
-function MobileTransactionCard({ t, onRemove, currentPrice, formatCurrency }: { 
+function MobileTransactionCard({ t, onRemove, onEdit, currentPrice, formatCurrency }: { 
   t: Transaction; 
-  onRemove: (id: string) => void; 
+  onRemove: (id: string) => void;
+  onEdit: () => void;
   currentPrice: number | null;
   formatCurrency: (val: number) => string;
 }) {
@@ -38,15 +42,26 @@ function MobileTransactionCard({ t, onRemove, currentPrice, formatCurrency }: {
               {format(new Date(t.date), 'MMM dd, yyyy')}
             </span>
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-            onClick={() => onRemove(t.id)}
-            data-testid={`button-delete-mobile-${t.id}`}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              onClick={onEdit}
+              data-testid={`button-edit-mobile-${t.id}`}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => onRemove(t.id)}
+              data-testid={`button-delete-mobile-${t.id}`}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         
         <div className="grid grid-cols-2 gap-3">
@@ -84,7 +99,8 @@ function MobileTransactionCard({ t, onRemove, currentPrice, formatCurrency }: {
   );
 }
 
-export function PortfolioList({ transactions, onRemove, currentPrice }: PortfolioListProps) {
+export function PortfolioList({ transactions, onRemove, onEdit, currentPrice }: PortfolioListProps) {
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
   
   if (transactions.length === 0) {
@@ -99,6 +115,13 @@ export function PortfolioList({ transactions, onRemove, currentPrice }: Portfoli
 
   return (
     <>
+      <EditTransactionDialog
+        transaction={editingTransaction}
+        open={!!editingTransaction}
+        onOpenChange={(open) => !open && setEditingTransaction(null)}
+        onSave={onEdit}
+      />
+
       {/* Mobile view - card list */}
       <div className="md:hidden space-y-3">
         <h3 className="text-lg font-semibold mb-4">Transaction History</h3>
@@ -106,7 +129,8 @@ export function PortfolioList({ transactions, onRemove, currentPrice }: Portfoli
           <MobileTransactionCard 
             key={t.id} 
             t={t} 
-            onRemove={onRemove} 
+            onRemove={onRemove}
+            onEdit={() => setEditingTransaction(t)}
             currentPrice={currentPrice}
             formatCurrency={formatCurrency}
           />
@@ -163,15 +187,26 @@ export function PortfolioList({ transactions, onRemove, currentPrice }: Portfoli
                         {isSend ? '-' : (currentPrice ? `${pl > 0 ? '+' : ''}${formatCurrency(pl)}` : '...')}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => onRemove(t.id)}
-                          className="opacity-50 hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
-                          data-testid={`button-delete-${t.id}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex justify-end gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setEditingTransaction(t)}
+                            className="opacity-50 hover:opacity-100 transition-opacity"
+                            data-testid={`button-edit-${t.id}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => onRemove(t.id)}
+                            className="opacity-50 hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                            data-testid={`button-delete-${t.id}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertTransactionSchema } from "@shared/schema";
+import { insertTransactionSchema, updateTransactionSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(
@@ -32,6 +32,27 @@ export async function registerRoutes(
       } else {
         console.error("Error creating transaction:", error);
         res.status(500).json({ error: "Failed to create transaction" });
+      }
+    }
+  });
+
+  // Update a transaction
+  app.put("/api/transactions/:id", async (req, res) => {
+    try {
+      const validatedData = updateTransactionSchema.parse(req.body);
+      const updated = await storage.updateTransaction(req.params.id, {
+        type: validatedData.type!,
+        amount: validatedData.amount!,
+        priceAtPurchase: validatedData.priceAtPurchase!,
+        date: new Date(validatedData.date!),
+      });
+      res.json(updated);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Invalid transaction data", details: error.errors });
+      } else {
+        console.error("Error updating transaction:", error);
+        res.status(500).json({ error: "Failed to update transaction" });
       }
     }
   });

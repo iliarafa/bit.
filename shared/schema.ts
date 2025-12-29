@@ -30,5 +30,9 @@ export const insertTransactionSchema = createInsertSchema(transactions).omit({
   date: true,
 });
 
+export const updateTransactionSchema = createInsertSchema(transactions).omit({
+  id: true,
+});
+
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 export type Transaction = typeof transactions.$inferSelect;

@@ -9,6 +9,7 @@ export interface IStorage {
   
   getAllTransactions(): Promise<Transaction[]>;
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
+  updateTransaction(id: string, data: { type: string; amount: number; priceAtPurchase: number; date: Date }): Promise<Transaction>;
   deleteTransaction(id: string): Promise<void>;
 }
 
@@ -35,6 +36,14 @@ export class DatabaseStorage implements IStorage {
   async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
     const [newTransaction] = await db.insert(transactions).values(transaction).returning();
     return newTransaction;
+  }
+
+  async updateTransaction(id: string, data: { type: string; amount: number; priceAtPurchase: number; date: Date }): Promise<Transaction> {
+    const [updated] = await db.update(transactions)
+      .set(data)
+      .where(eq(transactions.id, id))
+      .returning();
+    return updated;
   }
 
   async deleteTransaction(id: string): Promise<void> {

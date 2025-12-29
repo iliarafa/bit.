@@ -49,6 +49,22 @@ async function createTransaction(data: { type: string; amount: number; priceAtPu
   return normalizeTransaction(result);
 }
 
+async function updateTransactionApi(data: { id: string; type: string; amount: number; priceAtPurchase: number; date: string }): Promise<Transaction> {
+  const res = await fetch(`/api/transactions/${data.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: data.type,
+      amount: data.amount,
+      priceAtPurchase: data.priceAtPurchase,
+      date: data.date,
+    }),
+  });
+  if (!res.ok) throw new Error('Failed to update transaction');
+  const result = await res.json();
+  return normalizeTransaction(result);
+}
+
 async function deleteTransaction(id: string): Promise<void> {
   const res = await fetch(`/api/transactions/${id}`, {
     method: 'DELETE',
@@ -82,6 +98,24 @@ export function usePortfolio() {
       toast({
         title: "Error",
         description: "Failed to add transaction.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: updateTransactionApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      toast({
+        title: "Transaction Updated",
+        description: "Changes saved successfully."
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update transaction.",
         variant: "destructive"
       });
     }
@@ -136,6 +170,11 @@ export function usePortfolio() {
     createMutation.mutate({ type, amount, priceAtPurchase });
   };
 
+  const editTransaction = (id: string, type: 'buy' | 'send', amount: number, totalCost: number, date: string) => {
+    const priceAtPurchase = totalCost / amount;
+    updateMutation.mutate({ id, type, amount, priceAtPurchase, date });
+  };
+
   const removeTransaction = (id: string) => {
     deleteMutation.mutate(id);
   };
@@ -146,6 +185,7 @@ export function usePortfolio() {
     lastUpdated,
     isLoading: isLoading || isLoadingTransactions,
     addTransaction,
+    editTransaction,
     removeTransaction,
     refreshPrice: fetchPrice
   };

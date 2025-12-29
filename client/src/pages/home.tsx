@@ -13,7 +13,8 @@ export default function Home() {
     btcPrice, 
     lastUpdated, 
     isLoading, 
-    addTransaction, 
+    addTransaction,
+    editTransaction,
     removeTransaction, 
     refreshPrice 
   } = usePortfolio();
@@ -94,7 +95,8 @@ export default function Home() {
           <div className="lg:col-span-2">
              <PortfolioList 
                transactions={transactions} 
-               onRemove={removeTransaction} 
+               onRemove={removeTransaction}
+               onEdit={editTransaction}
                currentPrice={btcPrice} 
              />
           </div>
