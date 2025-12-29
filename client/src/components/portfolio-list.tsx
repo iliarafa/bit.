@@ -323,7 +323,7 @@ export function PortfolioList({ transactions, onRemove, onEdit, currentPrice }: 
                             variant="ghost" 
                             size="icon" 
                             onClick={() => setEditingTransaction(t)}
-                            className="opacity-50 hover:opacity-100 transition-opacity"
+                            className="opacity-50 hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
                             data-testid={`button-edit-${t.id}`}
                           >
                             <Pencil className="h-4 w-4" />
