@@ -11,8 +11,10 @@ interface PortfolioChartProps {
 }
 
 export function PortfolioChart({ transactions, currentPrice }: PortfolioChartProps) {
-  const chartData = useMemo(() => {
-    if (transactions.length === 0 || !currentPrice) return [];
+  const { chartData, costBasis, currentValue } = useMemo(() => {
+    if (transactions.length === 0 || !currentPrice) {
+      return { chartData: [], costBasis: 0, currentValue: 0 };
+    }
 
     const sortedTransactions = [...transactions].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -20,12 +22,18 @@ export function PortfolioChart({ transactions, currentPrice }: PortfolioChartPro
 
     const dataPoints: { date: string; value: number; label: string }[] = [];
     let runningBTC = 0;
+    let runningCostBasis = 0;
 
     sortedTransactions.forEach((t) => {
       if (t.type === 'buy') {
         runningBTC += t.amount;
+        runningCostBasis += t.amount * t.priceAtPurchase;
       } else {
-        runningBTC -= t.amount;
+        if (runningBTC > 0) {
+          const avgCost = runningCostBasis / runningBTC;
+          runningCostBasis -= t.amount * avgCost;
+          runningBTC -= t.amount;
+        }
       }
 
       const valueAtTransaction = runningBTC * t.priceAtPurchase;
@@ -37,14 +45,14 @@ export function PortfolioChart({ transactions, currentPrice }: PortfolioChartPro
       });
     });
 
-    const currentValue = runningBTC * currentPrice;
+    const currentVal = runningBTC * currentPrice;
     dataPoints.push({
       date: new Date().toISOString(),
-      value: Math.max(0, currentValue),
+      value: Math.max(0, currentVal),
       label: 'Today',
     });
 
-    return dataPoints;
+    return { chartData: dataPoints, costBasis: Math.max(0, runningCostBasis), currentValue: currentVal };
   }, [transactions, currentPrice]);
 
   const formatCurrency = (val: number) => 
@@ -54,11 +62,9 @@ export function PortfolioChart({ transactions, currentPrice }: PortfolioChartPro
     return null;
   }
 
-  const firstValue = chartData[0]?.value || 0;
-  const lastValue = chartData[chartData.length - 1]?.value || 0;
-  const change = lastValue - firstValue;
-  const changePercent = firstValue > 0 ? (change / firstValue) * 100 : 0;
-  const isPositive = change >= 0;
+  const profitLoss = currentValue - costBasis;
+  const changePercent = costBasis > 0 ? (profitLoss / costBasis) * 100 : 0;
+  const isPositive = profitLoss >= 0;
 
   return (
     <Card className="border-border/50 bg-card/50 backdrop-blur-sm" data-testid="section-portfolio-chart">
